@@ -1,4 +1,4 @@
-Engine plugin that disables breakage of player's equipment without breaking XP gains.
+Allows you to sleep in owned beds, while in combat/trespassing/near hostile actors. Configurable.
 
 [Nexus page](https://www.nexusmods.com/oblivionremastered/mods/1242)
 
