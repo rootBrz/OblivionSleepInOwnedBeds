@@ -1,9 +1,11 @@
 #include "main.h"
 #include "utils.h"
 #include <cstdint>
+#include <cstdio>
 #include <memoryapi.h>
 #include <minwindef.h>
 #include <processthreadsapi.h>
+#include <windows.h>
 
 typedef struct
 {
@@ -15,23 +17,24 @@ typedef struct
 
 DWORD WINAPI InitThread(LPVOID lpParam)
 {
-  // If OBSE initialized, do not run from PROCESS_ATTACH
-  if (lpParam && OBSE_MESSAGE)
-    return true;
+  Sleep(5000);
 
-  constexpr char pattern[]{"48 83 EC 40 49 8B ?? 49 8B C8 49 8B F8 48 8B F2 FF 90 48 03 ?? ??"};
-  uintptr_t mainFuncAddr{FindPattern(pattern, sizeof(pattern) / 3)};
-  SaveAddressToFile(mainFuncAddr);
+  FILE *log = fopen(LOG_NAME, "w");
 
   OWNED_BEDS = ReadIntIniSetting("SleepInOwnedBeds");
   HOSTILE_NEAR = ReadIntIniSetting("SleepHostileActorsNear");
   COMBAT = ReadIntIniSetting("SleepInCombat");
   TRESPASSING = ReadIntIniSetting("SleepTrespassing");
 
-  LogToFile("ONWED_BEDS: %d\n", OWNED_BEDS);
-  LogToFile("HOSTILE_NEAR: %d\n", HOSTILE_NEAR);
-  LogToFile("COMBAT: %d\n", COMBAT);
-  LogToFile("TRESPASSING: %d\n", TRESPASSING);
+  uintptr_t mainFuncAddr{FindPattern("48 83 EC 40 49 8B ?? 49 8B C8 49 8B F8 48 8B F2 FF 90 48 03")};
+
+  fprintf(log, "Found address: 0x%p\n", (void *)mainFuncAddr);
+  fprintf(log, "ONWED_BEDS: %d\n", OWNED_BEDS);
+  fprintf(log, "HOSTILE_NEAR: %d\n", HOSTILE_NEAR);
+  fprintf(log, "COMBAT: %d\n", COMBAT);
+  fprintf(log, "TRESPASSING: %d\n", TRESPASSING);
+
+  fclose(log);
 
   Patch options[] =
       {{OWNED_BEDS, 0x153, 1, {0xEB}},
@@ -47,29 +50,23 @@ DWORD WINAPI InitThread(LPVOID lpParam)
 }
 
 // OBSE
-void MessageHandler(OBSEMessagingInterface::Message *msg)
-{
-  if (msg->type == OBSEMessagingInterface::kMessage_PostPostLoad)
-    InitThread(nullptr);
-}
 extern "C"
 {
-  __declspec(dllexport) OBSEPluginVersionData OBSEPlugin_Version =
+  OBSEPluginVersionData OBSEPlugin_Version =
       {
           OBSEPluginVersionData::kVersion,
 
-          10,
+          11,
           "Sleep In Onwed Beds",
           "rootBrz",
 
           OBSEPluginVersionData::kAddressIndependence_Signatures,
           OBSEPluginVersionData::kStructureIndependence_NoStructs};
 
-  __declspec(dllexport) bool OBSEPlugin_Load(const OBSEInterface *obse)
+  bool OBSEPlugin_Load(const OBSEInterface *obse)
   {
     PLUGIN_HANDLE = obse->GetPluginHandle();
     OBSE_MESSAGE = (OBSEMessagingInterface *)obse->QueryInterface(kInterface_Messaging);
-    OBSE_MESSAGE->RegisterListener(PLUGIN_HANDLE, "OBSE", MessageHandler);
 
     return true;
   }

@@ -14,10 +14,10 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName",      "rootBrz"
-            VALUE "FileDescription",  "No Equipment Breakage"
+            VALUE "FileDescription",  "Sleep In Owned Beds"
             VALUE "FileVersion",      "@VERSION_STRING@"
-            VALUE "OriginalFilename", "No Equipment Breakage.dll"
-            VALUE "ProductName",      "No Equipment Breakage"
+            VALUE "OriginalFilename", "Sleep In Owned Beds.dll"
+            VALUE "ProductName",      "Sleep In Owned Beds"
             VALUE "ProductVersion",   "@VERSION_STRING@"
             VALUE "LegalCopyright", "Licensed under GPLv3"
         END
