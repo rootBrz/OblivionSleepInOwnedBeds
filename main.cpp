@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <memoryapi.h>
 #include <minwindef.h>
+#include <process.h>
 #include <processthreadsapi.h>
 #include <windows.h>
 
@@ -15,10 +16,8 @@ typedef struct
   uint8_t const patch[6];
 } Patch;
 
-DWORD WINAPI InitThread(LPVOID lpParam)
+unsigned int __stdcall InitThread(void *)
 {
-  Sleep(5000);
-
   FILE *log = fopen(LOG_NAME, "w");
 
   OWNED_BEDS = ReadIntIniSetting("SleepInOwnedBeds");
@@ -46,22 +45,25 @@ DWORD WINAPI InitThread(LPVOID lpParam)
     if (option.enabled)
       WriteProcessMemory(GetCurrentProcess(), (LPVOID)(mainFuncAddr + option.offset), option.patch, option.patchSize, NULL);
 
-  return true;
+  _endthreadex(0);
+  return 0;
 }
 
 // OBSE
 extern "C"
 {
-  OBSEPluginVersionData OBSEPlugin_Version =
-      {
-          OBSEPluginVersionData::kVersion,
-
-          11,
-          "Sleep In Onwed Beds",
-          "rootBrz",
-
-          OBSEPluginVersionData::kAddressIndependence_Signatures,
-          OBSEPluginVersionData::kStructureIndependence_NoStructs};
+  OBSEPluginVersionData OBSEPlugin_Version{
+      OBSEPluginVersionData::kVersion,
+      12,
+      "Sleep In Onwed Beds",
+      "rootBrz",
+      OBSEPluginVersionData::kAddressIndependence_Signatures,
+      OBSEPluginVersionData::kStructureIndependence_NoStructs,
+      {},
+      {},
+      {},
+      {},
+      {}};
 
   bool OBSEPlugin_Load(const OBSEInterface *obse)
   {

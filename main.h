@@ -13,4 +13,4 @@ inline OBSEMessagingInterface *OBSE_MESSAGE = nullptr;
 inline PluginHandle PLUGIN_HANDLE = kPluginHandle_Invalid;
 inline HMODULE DLL_HANDLE = nullptr;
 
-DWORD WINAPI InitThread(LPVOID lpParam);
+unsigned int __stdcall InitThread(void *param);
